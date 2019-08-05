@@ -1127,7 +1127,36 @@ namespace mars {
         postDrawCallback->getImageData(data, width, height);
       }
     }
-
+    void GraphicsWidget::getTempImageData(char* buffer, int& width, int& height){
+      if(isRTTWidget) {
+        Mat img = rttImage;
+        cvtColor(img, hsv, COLOR_RGB2HSV);
+        osg::Image *image =  img;
+        width = img->s();
+        height = img->t();
+        memcpy(buffer, img->data(), width*height*4);
+      }
+      else
+      {
+        //slow but works...
+        void *data;
+        postDrawCallback->getImageData(&data, width, height);
+        memcpy(buffer, data, width*height*4);
+        free(data);
+      }
+    }
+     /*void GraphicsWidget::getTempImageData(void **data, int &width, int &height) {
+      if(isRTTWidget) {
+        width = img->s();
+        height = img->t();
+        *data = malloc(width*height*4);
+        getImageData((char *) *data, width, height);
+      }
+      else {
+        postDrawCallback->getImageData(data, width, height);
+      }
+    }*/
+      
     void GraphicsWidget::getRTTDepthData(float* buffer, int& width, int& height)
     {
       if(isRTTWidget) {
