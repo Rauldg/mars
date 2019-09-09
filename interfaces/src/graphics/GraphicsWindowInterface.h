@@ -35,6 +35,7 @@
 #include "GraphicsCameraInterface.h"
 #include "GraphicsEventInterface.h"
 #include <mars/utils/Color.h>
+#include "Pixelvalues.h"
 
 namespace osg{
     class Group;
