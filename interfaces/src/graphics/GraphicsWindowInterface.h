@@ -69,7 +69,8 @@ namespace mars {
        * */
       virtual void getImageData(char *buffer, int &width, int &height) = 0;
       virtual void getImageData(void **data, int &width, int &height) = 0;
-      
+      virtual void getTempImageData(char *buffer, int &width, int &height) = 0;
+      virtual void getTempImageData(void **data, int &width, int &height) = 0;
       /**
        * This function copies the depth image in the given buffer.
        * It assumes that the buffer ist correctly initalized
