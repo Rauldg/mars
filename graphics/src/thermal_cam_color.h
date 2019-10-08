@@ -1,6 +1,11 @@
 #include<iostream>
-#include<opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#ifdef WIN32
+ #include <cv.h>
+ #include <highgui.h>
+#else
+ #include <opencv/cv.h>
+ #include <opencv/highgui.h>
+#endif
 #define MAX_H	500
 #define MAX_W	500
 
