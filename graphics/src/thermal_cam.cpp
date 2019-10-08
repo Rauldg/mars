@@ -1,4 +1,3 @@
-#include<iostream>
 #ifdef WIN32
  #include <cv.h>
  #include <highgui.h>
@@ -6,8 +5,23 @@
  #include <opencv/cv.h>
  #include <opencv/highgui.h>
 #endif
+#ifndef THERMAL_CAM_H
+#define THERMAL_CAM_H
+
+#ifdef _PRINT_HEADER_
+  #warning "thermal_cam.h"
+#endif
+#include "gui_helper_functions.h"
+#include "GraphicsCamera.h"
+#include "GraphicsWindowInterface.h"
+#include "GraphicsWidget.h"
+#endif
 #define MAX_H	500
 #define MAX_W	500
+
+namespace mars {
+  namespace graphics {
+
 
 using namespace std;
 using namespace  cv;
@@ -18,10 +32,35 @@ int find_temp(int r, int g, int b) {
 	return 0;
 }
 
-int main()
+void thermal_cam::getTempImageData(char*buffer, int& width, int& height)
 {
+	rttImage = new osg::Image();
+        rttImage->allocateImage(widgetWidth, widgetHeight,
+                                1, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV);
+        osgCamera->attach(osg::Camera::COLOR_BUFFER, rttImage.get());
+        rttTexture->setImage(rttImage);
+
+
+if(isRTTWidget) {
+        Mat img = rttImage;
+        cvtColor(img, hsv, COLOR_RGB2HSV);
+        osg::Image *image =  img;
+        width = img->s();
+        height = img->t();
+        memcpy(buffer, img->data(), width*height*4);
+      }
+      else
+      {
+        //slow but works...
+        void *data;
+        postDrawCallback->getTempImageData(&data, width, height);
+        memcpy(buffer, data, width*height*4);
+        free(data);
+	  }
+
+
 	//Mat img = imread("test.jpg");
-	Mat img = imread("nature.png", IMREAD_COLOR);
+	/*cv::Mat img= cv::imread("nature.png");
 	
 	Mat hsv;
 	if (img.empty())
@@ -37,8 +76,11 @@ int main()
 		namedWindow("HSV", WINDOW_NORMAL);
 		imshow("HSV", hsv);
 		//imwrite("hsv.png", hsv);
-	}
-	int count=0;
+	}*/
+
+
+
+	/*int count=0;
 	int h, s, v;
 	double w, l;
 	double b = 2.667771955e-3;
@@ -82,5 +124,7 @@ int main()
 	cout <<  "Minimum Temperature: "<<min << " at " <<x_min<<", "<<y_min<<"\n";
 
 	waitKey(0);
-	return 0;
+	return 0;*/
 }
+ } // end of namespace graphics
+} // end of namespace mars
