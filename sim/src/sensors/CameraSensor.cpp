@@ -176,19 +176,23 @@ namespace mars {
         assert(config.width == width);
         assert(config.height == height);
 
-        cv::namedWindow("Thermal Infrared Camera cv_im");        
-        //cv::namedWindow("Thermal Infrared Camera cv_im_aux");
-        //cv::namedWindow("Thermal Infrared Camera cv_hsv_im");
+        //cv::namedWindow("Thermal Infrared Camera cv_im_bgra");        
+        cv::namedWindow("Thermal Infrared Camera cv_im_rgb");
+        //cv::namedWindow("Thermal Infrared Camera cv_im_hsv");
+        cv::namedWindow("Thermal Infrared Camera cv_im_mapped");
+        
+        cv::Mat cv_im_bgra(width, height, CV_8UC4, buffer.data()); //open_cv creates initially brg images
+        cv::Mat cv_im_rgb;
+        cv::cvtColor(cv_im_bgra, cv_im_rgb, cv::COLOR_BGRA2RGB);
+        //cv::Mat cv_im_hsv;
+        //cv::cvtColor(cv_im_rgb, cv_im_hsv, cv::COLOR_RGB2HSV);
+        cv::Mat cv_im_mapped;
+        cv::applyColorMap(cv_im_rgb, cv_im_mapped, 1);
 
-        cv::Mat cv_im(width, height, CV_8UC4, buffer.data());
-        cv::Mat cv_im_aux;
-        cv::cvtColor(cv_im, cv_im_aux, cv::COLOR_RGBA2RGB);
-        //cv::Mat cv_hsv_im;
-        //cv::cvtColor(cv_im_aux, cv_hsv_im, cv::COLOR_RGB2HSV);
-
-        cv::imshow("Thermal Infrared Camera cv_im", cv_im);
-        cv::imshow("Thermal Infrared Camera cv_im_aux", cv_im_aux);
-        //cv::imshow("Thermal Infrared Camera cv_hsv_im", cv_im);
+        //cv::imshow("Thermal Infrared Camera cv_im", cv_im_bgra);
+        cv::imshow("Thermal Infrared Camera cv_im_rgb", cv_im_rgb);
+        //cv::imshow("Thermal Infrared Camera cv_im_hsv", cv_im_hsv);
+        cv::imshow("Thermal Infrared Camera cv_im_mapped", cv_im_mapped);
 
 
         /*
