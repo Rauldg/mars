@@ -38,6 +38,11 @@
 #include <cstring>
 #include <cstdlib>
 
+#include <base-logging/Logging.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc.hpp>
+
 
 namespace mars {
   namespace sim {
@@ -150,10 +155,67 @@ namespace mars {
         assert(buffer.size() == (config.width * config.height));
         int width;
         int height;
+        LOG_DEBUG("I am %s", config.name.c_str());
         gw->getImageData(reinterpret_cast<char *>(buffer.data()), width, height);
 
         assert(config.width == width);
         assert(config.height == height);
+    }
+
+    void CameraSensor::getTIRImage(std::vector< Pixel >& buffer) const
+    {
+        assert(buffer.size() == (config.width * config.height));
+        int width;
+        int height;
+        LOG_DEBUG("I am the TIR camera %s", config.name.c_str());
+        // Access here to the buffer and change the image
+        gw->getImageData(reinterpret_cast<char *>(buffer.data()), width, height);
+        // I guess that getImageData moves the image there, because on the rock
+        // side, the buffer memory position is not initialized to a particular
+        // value
+        assert(config.width == width);
+        assert(config.height == height);
+
+        cv::namedWindow("Thermal Infrared Camera cv_im");        
+        //cv::namedWindow("Thermal Infrared Camera cv_im_aux");
+        //cv::namedWindow("Thermal Infrared Camera cv_hsv_im");
+
+        cv::Mat cv_im(width, height, CV_8UC4, buffer.data());
+        cv::Mat cv_im_aux;
+        cv::cvtColor(cv_im, cv_im_aux, cv::COLOR_RGBA2RGB);
+        //cv::Mat cv_hsv_im;
+        //cv::cvtColor(cv_im_aux, cv_hsv_im, cv::COLOR_RGB2HSV);
+
+        cv::imshow("Thermal Infrared Camera cv_im", cv_im);
+        cv::imshow("Thermal Infrared Camera cv_im_aux", cv_im_aux);
+        //cv::imshow("Thermal Infrared Camera cv_hsv_im", cv_im);
+
+
+        /*
+        mars::sim::Pixel *image_dst = reordered_im.data();
+
+        //uint8_t *image_dst = image->getImagePtr();
+        const mars::sim::Pixel *image_src = buffer.data();
+        //uint8_t *image_dst = image->getImagePtr();
+        for(int i=height-1;i>=0;--i)
+        {
+            image_src = buffer.data()+width*i;
+            image_dst = reordered_im.data()+width*i;
+            for(int i2=0;i2<width;++i2)
+            {
+                *(image_dst++) = image_src->r;
+                *(image_dst++) = image_src->g;
+                *(image_dst++) = image_src->b;
+                ++image_src;
+            }
+        }*/
+
+
+        //cv::namedWindow("Thermal Infrared Camera");
+        //cv::Mat cv_im = cv::Mat(width, height, CV_8UC4, reinterpret_cast<unsigned *>(buffer.data()));
+        //cv::Mat cv_im = cv::Mat(width, height, CV_8UC4, image_dst);
+        //cv::Mar hsv_im = cv::cvtColor(cv_im, hsv_im, COLOR_RG2HSV);
+        //cv::imshow("Thermal Infrared Camera", cv_im);
     }
 
     void CameraSensor::getDepthImage(std::vector< mars::sim::DistanceMeasurement >& buffer) const
