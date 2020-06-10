@@ -178,22 +178,60 @@ namespace mars {
 
         //cv::namedWindow("Thermal Infrared Camera cv_im_bgra");        
         cv::namedWindow("Thermal Infrared Camera cv_im_rgb");
-        //cv::namedWindow("Thermal Infrared Camera cv_im_hsv");
+        cv::namedWindow("Thermal Infrared Camera cv_im_hsv");
         cv::namedWindow("Thermal Infrared Camera cv_im_mapped");
         
         cv::Mat cv_im_bgra(width, height, CV_8UC4, buffer.data()); //open_cv creates initially brg images
         cv::Mat cv_im_rgb;
         cv::cvtColor(cv_im_bgra, cv_im_rgb, cv::COLOR_BGRA2RGB);
-        //cv::Mat cv_im_hsv;
-        //cv::cvtColor(cv_im_rgb, cv_im_hsv, cv::COLOR_RGB2HSV);
+        cv::Mat cv_im_hsv;
+        cv::cvtColor(cv_im_rgb, cv_im_hsv, cv::COLOR_RGB2HSV);
         cv::Mat cv_im_mapped;
-        cv::applyColorMap(cv_im_rgb, cv_im_mapped, 1);
+        cv::applyColorMap(cv_im_rgb, cv_im_mapped, cv::COLORMAP_AUTUMN);
 
         //cv::imshow("Thermal Infrared Camera cv_im", cv_im_bgra);
         cv::imshow("Thermal Infrared Camera cv_im_rgb", cv_im_rgb);
-        //cv::imshow("Thermal Infrared Camera cv_im_hsv", cv_im_hsv);
+        cv::imshow("Thermal Infrared Camera cv_im_hsv", cv_im_hsv);
         cv::imshow("Thermal Infrared Camera cv_im_mapped", cv_im_mapped);
 
+        cv::Mat tir(width, height, CV_8UC1);
+
+        double lt = -50.0, mt = 50.0, t = 0.0, perct = 0.0;
+        double h = 0, s = 0, v= 0;
+        double mtf = -200.0, ltf = 200.0;
+
+        for (int i = 0; i < cv_im_hsv.rows; i++)
+        {
+          for (int j = 0; j < cv_im_hsv.cols; j++)
+          {
+            h = (double)cv_im_hsv.at<cv::Vec3b>(i, j)[0];
+            s = (double)cv_im_hsv.at<cv::Vec3b>(i, j)[1];
+            v = (double)cv_im_hsv.at<cv::Vec3b>(i, j)[2];
+            // Add all colors to get and divide by the max to get a value
+            // between 0 and 1
+            perct = (h + s + v)/(255.0*3.0);
+            t = (mt-lt)*perct + lt;
+            if (t > mtf)
+            {
+              mtf = t;
+            }
+            if (t<ltf)
+            {
+              ltf =t;
+            }
+            tir.at<u_char>(i,j) = (mt-lt)*perct + lt;
+            //cout << "HSV: " << r << ", " << g << ", " << b << "\n";
+            if ((i == 10) & (j == 10))
+            {
+              LOG_DEBUG("hsv: %f, %f, %f", h, s, v);
+              LOG_DEBUG("Perct: %f", perct);
+              LOG_DEBUG("temp: %f", t);
+            }
+          }
+        }
+        cv::FileStorage file("/home/devel/example_tir_im.yml", cv::FileStorage::WRITE);
+        file << "Thermal Infrared Image" << tir;
+        LOG_DEBUG("FOOOOOOOOOOOO: range (%f, %f)", ltf, mtf);
 
         /*
         mars::sim::Pixel *image_dst = reordered_im.data();
