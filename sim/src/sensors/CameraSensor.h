@@ -37,6 +37,8 @@
 #include <mars/interfaces/graphics/GraphicsCameraInterface.h>
 #include "SimEntity.h"
 
+#include <opencv2/core/core.hpp>
+
 #include <inttypes.h>
 typedef uint8_t  u_int8_t;
 
@@ -118,6 +120,7 @@ namespace mars {
       virtual int getSensorData(interfaces::sReal** data) const;
 
       void getImage(std::vector<Pixel> &buffer) const;
+      double hsv_temperature(cv::Vec3b hsv) const;
       void getTIRImage(std::vector<Pixel> &buffer) const;
       void getDepthImage(std::vector<DistanceMeasurement> &buffer) const;
       void getEntitiesInView(std::map<unsigned long, SimEntity*> &buffer, unsigned int visVert_threshold);
