@@ -42,16 +42,16 @@ endif()
 set (QT_USE_QTOPENGL TRUE)
 setup_qt()
 
-if (PREFERE_QT4)
-    find_package(OpenSceneGraph REQUIRED osgManipulator osgViewer osgFX osgShadow osgParticle osgTerrain osgDB osgGA osgWidget osgText osgUtil osgQt)
-else()
+if (USE_QT5)
     pkg_check_modules(OSGQT openscenegraph-osgQt5)
-    find_package(OpenSceneGraph REQUIRED osgManipulator osgViewer osgFX osgShadow osgParticle osgTerrain osgDB osgGA osgWidget osgText osgUtil)
-
     include_directories(${OSGQT_INCLUDE_DIRS})
     link_directories(${OSGQT_LIBRARY_DIRS})
     add_definitions(${OSGQT_CFLAGS_OTHER})  #cflags without -I
+else()
+    pkg_check_modules(OSGQT openscenegraph-osgQt)
 endif()
+
+find_package(OpenSceneGraph REQUIRED osgManipulator osgViewer osgFX osgShadow osgParticle osgTerrain osgDB osgGA osgWidget osgText osgUtil)
 
 include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 link_directories(${OPENSCENEGRAPH_LIBRARY_DIRS})
